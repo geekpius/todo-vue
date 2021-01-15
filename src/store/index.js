@@ -65,7 +65,7 @@ export default new Vuex.Store({
     },
     updateTask: async (_, payload) => {
       try {
-        let response = await axios.put(`${baseUrl}/api/tasks/${payload.id}`, {task: payload.task});
+        let response = await axios.put(`${baseUrl}/api/tasks/${payload.id}`, {task:payload.task});
         return response;
       } catch (error) {
         if (error.response.status === 404) {
