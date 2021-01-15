@@ -37,6 +37,9 @@ export default new Vuex.Store({
       } catch (error) {
         if (error.response.status === 400) {
           return { error: "Form validations did not pass." };
+        }
+        else if (error.response.status === 500) {
+            return { error: "Form validations did not pass." };
         } else {
           return { error: "Something went wrong." };
         }
@@ -65,7 +68,7 @@ export default new Vuex.Store({
     },
     updateTask: async (_, payload) => {
       try {
-        let response = await axios.put(`${baseUrl}/api/tasks/${payload.id}`, {task:payload.task});
+        let response = await axios.put(`${baseUrl}/api/tasks/${payload.id}`, {owner:payload.owner, task:payload.task});
         return response;
       } catch (error) {
         if (error.response.status === 404) {

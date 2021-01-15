@@ -67,7 +67,7 @@
       >
         <v-card color="grey lighten-4" min-width="350px" flat>
           <v-toolbar :color="selectedEvent.color" dark>
-            <v-btn icon @click="showTaskEditor=!showTaskEditor">
+            <v-btn icon @click="editEvent(selectedEvent)">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
             <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
@@ -81,20 +81,28 @@
           </v-toolbar>
           <v-card-text>
             <span class="subtitle-1" v-html="`${selectedEvent.owner} is the owner`"></span>
-            <v-text-field
-              v-if="showTaskEditor"
-              :value="selectedEvent.name"
+            <v-form v-if="showTaskEditor" class="mt-4">
+              <v-text-field
+                label="Edit owner name"
+                v-model="currentEdittingEvent.owner"
+              />
+              <v-text-field
+              v-model="currentEdittingEvent.name"
               label="Edit task name"
-              class="mt-4"
-            ></v-text-field>
+              />
+            </v-form>
+            
           </v-card-text>
           <v-card-actions>
             <v-btn text color="secondary" @click="selectedOpen = false">
               Cancel
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn text color="primary" v-if="showTaskEditor" @click="updateTaskName(selectedEvent.id, selectedEvent.name)">
+            <v-btn text color="primary" v-if="showTaskEditor" @click="updateTask">
               Update
+            </v-btn>
+            <v-btn text color="error" v-if="!showTaskEditor" @click="deleteTask(selectedEvent.id)">
+              Delete
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -121,7 +129,8 @@ export default {
       selectedOpen: false,
       events: [],
       colors: ["green"],
-      showTaskEditor: false
+      showTaskEditor: false,
+      currentEdittingEvent: {}
     };
   },
   mounted() {
@@ -143,6 +152,10 @@ export default {
     },
     next() {
       this.$refs.calendar.next();
+    },
+    editEvent(event){
+      this.currentEdittingEvent = event;
+      this.showTaskEditor = !this.showTaskEditor;
     },
     showEvent({ nativeEvent, event }) {
       this.showTaskEditor = false;
@@ -186,19 +199,29 @@ export default {
     async fetchAllTasks() {
       await this.$store.dispatch("fetchAllTasks");
     },
-    async updateTaskName(id, taskName) {
-      if(taskName == null){
-        alert("Enter edited task name");
+    async updateTask() {
+      if(this.currentEdittingEvent.owner == null || this.currentEdittingEvent.name == null){
+        alert("Enter something in filed");
       }
       let response = await this.$store.dispatch("updateTask", {
-        id: id,
-        task: taskName
+        id: this.currentEdittingEvent.id,
+        owner: this.currentEdittingEvent.owner,
+        task: this.currentEdittingEvent.name
       });
       if(response.error){
         alert(response.error);
       }else{
         alert("Updated successful");
       }
+      this.fetchAllTasks();
+    },
+    async deleteTask(id) {
+      let response = await this.$store.dispatch("deleteTask", id);
+      if(response.error){
+        alert(response.error);
+      }
+      this.getEvents();
+      this.selectedOpen= false;
     }
   },
   computed: {
