@@ -11,9 +11,6 @@ export default new Vuex.Store({
     tasks: []
   },
   getters: {
-    getOwners: state => {
-      return state.tasks.map(task => task.owner);
-    },
     getTaskList: state => {
       return state.tasks;
     }
